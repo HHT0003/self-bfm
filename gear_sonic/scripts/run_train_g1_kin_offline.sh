@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# Offline G1 encoder + FSQ + g1_kin reconstruction on mixed G1 NPZ sources.
-# Launches with nohup and logs curves to wandb project general_self_bfm.
-# Does not launch Isaac Lab / PPO / g1_dyn.
+# Offline G1 encoder + FSQ + g1_kin reconstruction (no Isaac Lab / PPO / g1_dyn).
+#
+# Equivalent to the mixed-NPZ nohup command. Extra python flags can be appended:
+#   bash gear_sonic/scripts/run_train_g1_kin_offline.sh --epochs 10
+#
+# Optional env:
+#   GPU_ID=0 RUN_NAME=g1_kin_offline_s10_fs5_mlp3_mixed ISAAC_PYTHON=/isaac-sim/python.sh
 
 set -euo pipefail
 
@@ -11,7 +15,6 @@ SCRIPT="${REPO_ROOT}/gear_sonic/scripts/train_g1_kin_offline.py"
 RUN_NAME="${RUN_NAME:-g1_kin_offline_s10_fs5_mlp3_mixed}"
 GPU_ID="${GPU_ID:-0}"
 LOG_FILE="${OUT_DIR}/nohup_${RUN_NAME}.log"
-
 ISAAC_PYTHON="${ISAAC_PYTHON:-/isaac-sim/python.sh}"
 
 DATA_DIRS=(
@@ -43,9 +46,9 @@ printf '  %s\n' "${DATA_DIRS[@]}"
 echo "[INFO] out_dir=${OUT_DIR}"
 echo "[INFO] wandb project=general_self_bfm run=${RUN_NAME}"
 echo "[INFO] GPU_ID=${GPU_ID} log=${LOG_FILE}"
-echo "[INFO] Encoder/decoder use three layers 2048,1024,512 (not SONIC's four-layer 2048,1024,512,512)."
+echo "[INFO] Encoder/decoder MLP: 2048,1024,512 (three layers)."
 
-nohup env CUDA_VISIBLE_DEVICES="${GPU_ID}" WANDB_MODE=online PYTHONUNBUFFERED=1 \
+nohup env CUDA_VISIBLE_DEVICES="${GPU_ID}" WANDB_MODE=online PYTHONUNBUFFERED=1 HYDRA_FULL_ERROR=1 \
     "${ISAAC_PYTHON}" "${SCRIPT}" train \
     --data_dir "${DATA_DIRS[@]}" \
     --out_dir "${OUT_DIR}" \
@@ -75,6 +78,7 @@ nohup env CUDA_VISIBLE_DEVICES="${GPU_ID}" WANDB_MODE=online PYTHONUNBUFFERED=1 
 TRAIN_PID=$!
 
 echo "[INFO] launched PID=${TRAIN_PID}"
+echo "${TRAIN_PID}"
 echo "[INFO] log=${LOG_FILE}"
 echo "[INFO] wandb project=general_self_bfm"
 echo "[INFO] follow with: tail -f ${LOG_FILE}"

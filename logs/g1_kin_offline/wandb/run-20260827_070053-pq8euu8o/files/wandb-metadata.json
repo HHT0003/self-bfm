@@ -1,0 +1,95 @@
+{
+  "os": "Linux-6.8.0-136-generic-x86_64-with-glibc2.35",
+  "python": "CPython 3.10.15",
+  "startedAt": "2026-08-27T07:00:53.901975Z",
+  "args": [
+    "train",
+    "--data_dir",
+    "/data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz",
+    "--out_dir",
+    "/data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline",
+    "--seq_len",
+    "10",
+    "--frame_stride",
+    "5",
+    "--window_stride",
+    "5",
+    "--enc_hidden_dims",
+    "2048,1024,512",
+    "--dec_hidden_dims",
+    "2048,1024,512",
+    "--max_num_tokens",
+    "2",
+    "--token_dim",
+    "32",
+    "--fsq_levels",
+    "32",
+    "--batch_size",
+    "256",
+    "--epochs",
+    "250",
+    "--lr",
+    "2e-4",
+    "--num_workers",
+    "8",
+    "--device",
+    "cuda",
+    "--val_ratio",
+    "0.05",
+    "--seed",
+    "42",
+    "--use_wandb",
+    "--wandb_project",
+    "general_self_bfm",
+    "--wandb_run_name",
+    "g1_kin_offline_s10_fs5_mlp3",
+    "--wandb_tags",
+    "g1_kin_offline,fsq,bones_seed",
+    "--wandb_mode",
+    "online",
+    "--wandb_log_every_steps",
+    "20"
+  ],
+  "program": "/data/init_precise_control/projects/GR00T-WholeBodyControl/gear_sonic/scripts/train_g1_kin_offline.py",
+  "codePath": "gear_sonic/scripts/train_g1_kin_offline.py",
+  "codePathLocal": "gear_sonic/scripts/train_g1_kin_offline.py",
+  "git": {
+    "remote": "https://github.com/NVlabs/GR00T-WholeBodyControl.git",
+    "commit": "c374bae5b9039cd0ee71377e654d11ce1bc69e1d"
+  },
+  "email": "617363291@qq.com",
+  "root": "/data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline",
+  "host": "zeus-t5d",
+  "executable": "/isaac-sim/kit/python/bin/python3",
+  "cpu_count": 16,
+  "cpu_count_logical": 32,
+  "gpu": "NVIDIA GeForce RTX 5090",
+  "gpu_count": 2,
+  "disk": {
+    "/": {
+      "total": "3936290357248",
+      "used": "1921532878848"
+    }
+  },
+  "memory": {
+    "total": "132569088000"
+  },
+  "gpu_nvidia": [
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "memoryTotal": "34190917632",
+      "cudaCores": 21760,
+      "architecture": "Blackwell",
+      "uuid": "GPU-90cd29d4-d8ac-1acc-00f2-1b51a1e75876"
+    },
+    {
+      "name": "NVIDIA GeForce RTX 5090",
+      "memoryTotal": "34190917632",
+      "cudaCores": 21760,
+      "architecture": "Blackwell",
+      "uuid": "GPU-24b0bcd3-9849-ed6f-836a-870eebe6561a"
+    }
+  ],
+  "cudaVersion": "13.0",
+  "writerId": "cgky48om8casjxcnlzq8s9atuvuuycy5"
+}

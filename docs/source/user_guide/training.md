@@ -337,3 +337,34 @@ data/
 │   └── soma_filtered/      # ~130K PKLs (SOMA skeleton)
 └── smpl_filtered/          # ~131K PKLs (SMPL human)
 ```
+
+## Offline G1 kinematic tokenizer (no Isaac / PPO)
+
+Use this path to train **only** the G1 motion tokenizer (encoder → FSQ → `g1_kin` reconstruction) on NPZ files. It does not run Isaac Lab, PPO, `g1_dyn`, or SMPL/teleop encoders.
+
+NPZ files must contain `joint_pos[T, 29]` and `joint_vel[T, 29]`. Extra keys are ignored. `--data_dir` can be repeated; `*.npz` is collected recursively.
+
+Default mixed-data launch (nohup, wandb project `general_self_bfm`):
+
+```bash
+bash gear_sonic/scripts/run_train_g1_kin_offline.sh
+```
+
+Architecture and sampling:
+
+| Item | Value |
+|------|-------|
+| Input / recon | `[B, 10, 58]` (`joint_pos` + `joint_vel`) |
+| Encoder / decoder MLP | `2048, 1024, 512` |
+| FSQ | 2 tokens × 32 dims, 32 levels |
+| Frame sampling | `seq_len=10`, `frame_stride=5` at 50 Hz (0.1 s) |
+| Default data | BONES-SEED prefix 1/3, box carry, kick, LAFAN1 G1, AMASS G1 |
+
+Logs: `logs/g1_kin_offline/nohup_g1_kin_offline_s10_fs5_mlp3_mixed.log`. Checkpoints: `logs/g1_kin_offline/{last,best,epoch_XXXX}.pt`. Reconstruct:
+
+```bash
+/isaac-sim/python.sh gear_sonic/scripts/train_g1_kin_offline.py reconstruct \
+    --ckpt logs/g1_kin_offline/best.pt \
+    --input_npz /path/to/motion.npz \
+    --output_npz /tmp/recon.npz
+```

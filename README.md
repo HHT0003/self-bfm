@@ -51,6 +51,7 @@ This is the codebase for the **GR00T Whole-Body Control (WBC)** projects. It hos
 - [VR Whole-Body Teleoperation](#vr-whole-body-teleoperation)
 - [Kinematic Planner](#kinematic-planner)
 - [SONIC Training](#sonic-training)
+  - [Offline G1 kinematic tokenizer](#offline-g1-kinematic-tokenizer)
 - [TODOs](#todos)
 - [What's Included](#whats-included)
   - [Setup](#setup)
@@ -315,6 +316,67 @@ For the full guide including multi-node training, evaluation, ONNX export, and S
 📖 [Installation (Training)](https://nvlabs.github.io/GR00T-WholeBodyControl/getting_started/installation_training.html) |
 [Training Guide](https://nvlabs.github.io/GR00T-WholeBodyControl/user_guide/training.html)
 
+### Offline G1 kinematic tokenizer
+
+`gear_sonic/scripts/train_g1_kin_offline.py` trains **only** the G1 kinematic token path used by SONIC:
+
+```text
+joint_pos/joint_vel windows [B, 10, 58]
+    -> 3-layer MLP encoder
+    -> FSQ  (2 tokens x 32 dims, 32 levels)
+    -> 3-layer g1_kin MLP decoder
+    -> reconstruct [B, 10, 58]
+```
+
+This does **not** launch Isaac Lab, PPO, `g1_dyn`, SMPL/teleop encoders, or robot proprioception. NPZ files must contain `joint_pos[T, 29]` and `joint_vel[T, 29]`; extra keys (box, ball, contact, ...) are ignored. Sampling matches SONIC G1 future-reference: 10 frames at 50 Hz with `frame_stride=5` (0.1 s between frames). `--data_dir` accepts one or more roots and recursively collects `*.npz` (needed for nested layouts such as `lafan1_g1/g1_mimic_npz`).
+
+Launch the mixed-data recipe with nohup + wandb (`general_self_bfm`):
+
+```bash
+bash gear_sonic/scripts/run_train_g1_kin_offline.sh
+```
+
+That wrapper is the same as:
+
+```bash
+cd /data/init_precise_control/projects/GR00T-WholeBodyControl && mkdir -p logs/g1_kin_offline && nohup env CUDA_VISIBLE_DEVICES=0 WANDB_MODE=online PYTHONUNBUFFERED=1 HYDRA_FULL_ERROR=1 /isaac-sim/python.sh gear_sonic/scripts/train_g1_kin_offline.py train \
+  --data_dir \
+    /data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3/all \
+    /data/init_precise_control/motion_data/perceptive_generalist_data_upload/box_omnicontact_contact_augmented_0722_forcevalid_20260727_053934 \
+    /data/init_precise_control/motion_data/perceptive_generalist_data_upload/kick \
+    /data/init_precise_control/motion_data/perceptive_generalist_data_upload/lafan1_g1 \
+    /data/init_precise_control/motion_data/AMASS_Retargeted_for_G1/g1_mimic_npz_50hz \
+  --out_dir /data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline \
+  --seq_len 10 --frame_stride 5 --window_stride 5 \
+  --enc_hidden_dims 2048,1024,512 --dec_hidden_dims 2048,1024,512 \
+  --max_num_tokens 2 --token_dim 32 --fsq_levels 32 \
+  --batch_size 256 --epochs 250 --lr 2e-4 --num_workers 8 --device cuda \
+  --val_ratio 0.05 --seed 42 \
+  --use_wandb --wandb_project general_self_bfm \
+  --wandb_run_name g1_kin_offline_s10_fs5_mlp3_mixed \
+  --wandb_tags g1_kin_offline,fsq,bones_prefix1of3,box,kick,lafan1,amass \
+  --wandb_mode online --wandb_log_every_steps 20 \
+  > logs/g1_kin_offline/nohup_g1_kin_offline_s10_fs5_mlp3_mixed.log 2>&1 &
+echo $!
+```
+
+Override GPU / run name, or append extra python flags:
+
+```bash
+GPU_ID=1 RUN_NAME=g1_kin_offline_debug bash gear_sonic/scripts/run_train_g1_kin_offline.sh --epochs 2 --max_files 64
+```
+
+Follow logs with `tail -f logs/g1_kin_offline/nohup_g1_kin_offline_s10_fs5_mlp3_mixed.log`. One tqdm pass (`20060/20060`) is one **train** epoch; `[step N]` is the global batch count; `[epoch kkk/250]` is printed after train + val. Checkpoints: `logs/g1_kin_offline/{last,best,epoch_XXXX}.pt`. Reconstruct one NPZ:
+
+```bash
+/isaac-sim/python.sh gear_sonic/scripts/train_g1_kin_offline.py reconstruct \
+    --ckpt logs/g1_kin_offline/best.pt \
+    --input_npz /path/to/motion.npz \
+    --output_npz /tmp/recon.npz
+```
+
+See also the [Training Guide](docs/source/user_guide/training.md#offline-g1-kinematic-tokenizer-no-isaac--ppo).
+
 
 ## TODOs
 
@@ -333,7 +395,7 @@ For the full guide including multi-node training, evaluation, ONNX export, and S
 This release includes:
 
 - **`gear_sonic_deploy`**: C++ inference stack for deploying SONIC policies on real hardware
-- **`gear_sonic`**: Full SONIC training stack — PPO training, data processing pipeline, and configuration system for training on Bones-SEED and custom motion datasets
+- **`gear_sonic`**: Full SONIC training stack — PPO training, data processing pipeline, configuration system, and an optional offline G1 kinematic tokenizer (`scripts/train_g1_kin_offline.py`) for NPZ reconstruction without Isaac Lab
 - **`motionbricks`**: Preview release of the MotionBricks real-time latent generative stack — interactive G1 demo, pretrained checkpoints, synthetic training code, and motion-representation docs
 
 ### Setup
