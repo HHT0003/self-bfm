@@ -1,0 +1,19 @@
+prefix=${pcfiledir}/../..
+exec_prefix=${pcfiledir}/../..
+libdir=${pcfiledir}/../../lib/python3.10/site-packages/pinocchio
+bindir=${pcfiledir}/../../lib/python3.10/site-packages/pinocchio
+pkglibdir=${pcfiledir}/../../lib/pinocchio
+includedir=${pcfiledir}/../../include
+datarootdir=${pcfiledir}/../../share
+pkgdatarootdir=${pcfiledir}/../../share
+docdir=
+doxygendocdir=
+
+Name: pinocchiopy
+Description: Python bindings of Pinocchio
+URL: http://github.com/stack-of-tasks/pinocchio
+Version: 2.7.0
+Requires: pinocchio, eigenpy >= 2.6.2
+Conflicts: 
+Libs: -L${libdir} -lpinocchio_pywrap -lboost_python
+Cflags: -I${includedir} -I/usr/local/include -I/opt/python/cp310-cp310/include/python3.10 -DPINOCCHIO_WITH_URDFDOM -DPINOCCHIO_WITH_HPP_FCL

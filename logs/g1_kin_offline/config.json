@@ -1,14 +1,14 @@
 {
   "data_dirs": [
-    "/data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3/all",
-    "/data/init_precise_control/motion_data/perceptive_generalist_data_upload/box_omnicontact_contact_augmented_0722_forcevalid_20260727_053934",
-    "/data/init_precise_control/motion_data/perceptive_generalist_data_upload/kick",
-    "/data/init_precise_control/motion_data/perceptive_generalist_data_upload/lafan1_g1",
-    "/data/init_precise_control/motion_data/AMASS_Retargeted_for_G1/g1_mimic_npz_50hz"
+    "/home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz",
+    "/home/hohohht/Generalist/data/box_omnicontact_contact_augmented",
+    "/home/hohohht/Generalist/data/kick",
+    "/home/hohohht/Generalist/data/lafan1_g1",
+    "/home/hohohht/Generalist/data/AMASS"
   ],
-  "num_files": 62997,
-  "num_train_windows": 5135211,
-  "num_val_windows": 276118,
+  "num_files": 167825,
+  "num_train_windows": 10707564,
+  "num_val_windows": 561244,
   "seq_len": 10,
   "frame_stride": 5,
   "window_stride": 5,
@@ -18,14 +18,14 @@
   "args": {
     "command": "train",
     "data_dir": [
-      "/data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3/all",
-      "/data/init_precise_control/motion_data/perceptive_generalist_data_upload/box_omnicontact_contact_augmented_0722_forcevalid_20260727_053934",
-      "/data/init_precise_control/motion_data/perceptive_generalist_data_upload/kick",
-      "/data/init_precise_control/motion_data/perceptive_generalist_data_upload/lafan1_g1",
-      "/data/init_precise_control/motion_data/AMASS_Retargeted_for_G1/g1_mimic_npz_50hz"
+      "/home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz",
+      "/home/hohohht/Generalist/data/box_omnicontact_contact_augmented",
+      "/home/hohohht/Generalist/data/kick",
+      "/home/hohohht/Generalist/data/lafan1_g1",
+      "/home/hohohht/Generalist/data/AMASS"
     ],
     "no_recursive": false,
-    "out_dir": "/data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline",
+    "out_dir": "/home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline",
     "seq_len": 10,
     "frame_stride": 5,
     "window_stride": 5,
@@ -52,8 +52,8 @@
     "use_wandb": true,
     "wandb_project": "general_self_bfm",
     "wandb_entity": null,
-    "wandb_run_name": "g1_kin_offline_s10_fs5_mlp3_mixed",
-    "wandb_tags": "g1_kin_offline,fsq,bones_prefix1of3,box,kick,lafan1,amass",
+    "wandb_run_name": "g1_kin_offline_s10_fs5_mlp3_mixed_migrated",
+    "wandb_tags": "g1_kin_offline,fsq,bones,box,kick,lafan1,amass",
     "wandb_mode": "online",
     "wandb_log_every_steps": 20
   }

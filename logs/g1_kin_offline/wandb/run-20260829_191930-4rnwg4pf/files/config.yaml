@@ -1,0 +1,168 @@
+_wandb:
+    value:
+        cli_version: 0.29.0
+        e:
+            34dinui1c2pgraeg2oejxs938icq6m5s:
+                args:
+                    - train
+                    - --data_dir
+                    - /home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz
+                    - /home/hohohht/Generalist/data/box_omnicontact_contact_augmented
+                    - /home/hohohht/Generalist/data/kick
+                    - /home/hohohht/Generalist/data/lafan1_g1
+                    - /home/hohohht/Generalist/data/AMASS
+                    - --out_dir
+                    - /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline
+                    - --seq_len
+                    - "10"
+                    - --frame_stride
+                    - "5"
+                    - --window_stride
+                    - "5"
+                    - --enc_hidden_dims
+                    - 2048,1024,512
+                    - --dec_hidden_dims
+                    - 2048,1024,512
+                    - --max_num_tokens
+                    - "2"
+                    - --token_dim
+                    - "32"
+                    - --fsq_levels
+                    - "32"
+                    - --batch_size
+                    - "256"
+                    - --epochs
+                    - "250"
+                    - --lr
+                    - "2e-4"
+                    - --num_workers
+                    - "8"
+                    - --device
+                    - cuda
+                    - --val_ratio
+                    - "0.05"
+                    - --seed
+                    - "42"
+                    - --use_wandb
+                    - --wandb_project
+                    - general_self_bfm
+                    - --wandb_run_name
+                    - g1_kin_offline_s10_fs5_mlp3_mixed_migrated
+                    - --wandb_tags
+                    - g1_kin_offline,fsq,bones,box,kick,lafan1,amass
+                    - --wandb_mode
+                    - online
+                    - --wandb_log_every_steps
+                    - "20"
+                codePath: gear_sonic/scripts/train_g1_kin_offline.py
+                codePathLocal: gear_sonic/scripts/train_g1_kin_offline.py
+                cpu_count: 16
+                cpu_count_logical: 32
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "982240026624"
+                        used: "177991749632"
+                email: 617363291@qq.com
+                executable: /home/hohohht/miniconda3/envs/isaaclab210/bin/python
+                git:
+                    commit: 4763a34421cc13c49bdfd55649b0daa4cbef671e
+                    remote: https://github.com/HHT0003/self-bfm.git
+                gpu: NVIDIA GeForce RTX 5080
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Blackwell
+                      cudaCores: 10752
+                      memoryTotal: "17094934528"
+                      name: NVIDIA GeForce RTX 5080
+                      uuid: GPU-f6cf0a93-7d2c-6a1f-5d43-906f3c48d66a
+                host: hohohht-MS-7E70
+                memory:
+                    total: "64826773504"
+                os: Linux-7.0.0-30-generic-x86_64-with-glibc2.39
+                program: /home/hohohht/Generalist/projects/SONIC_vqvae/gear_sonic/scripts/train_g1_kin_offline.py
+                python: CPython 3.10.21
+                root: /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline
+                startedAt: "2026-08-29T11:19:30.611804Z"
+                writerId: 34dinui1c2pgraeg2oejxs938icq6m5s
+        m: []
+        python_version: 3.10.21
+        t:
+            "1":
+                - 1
+            "2":
+                - 1
+            "3":
+                - 13
+                - 15
+                - 16
+            "4": 3.10.21
+            "5": 0.29.0
+            "12": 0.29.0
+            "13": linux-x86_64
+args:
+    value:
+        batch_size: 256
+        checkpoint_every: 10
+        command: train
+        data_dir:
+            - /home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz
+            - /home/hohohht/Generalist/data/box_omnicontact_contact_augmented
+            - /home/hohohht/Generalist/data/kick
+            - /home/hohohht/Generalist/data/lafan1_g1
+            - /home/hohohht/Generalist/data/AMASS
+        dec_hidden_dims: 2048,1024,512
+        device: cuda
+        enc_hidden_dims: 2048,1024,512
+        epochs: 250
+        frame_stride: 5
+        fsq_levels: "32"
+        grad_clip: 1
+        lr: 0.0002
+        max_files: null
+        max_num_tokens: 2
+        max_windows: null
+        no_cover_tail: false
+        no_recursive: false
+        num_workers: 8
+        out_dir: /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline
+        seed: 42
+        seq_len: 10
+        token_dim: 32
+        use_wandb: true
+        val_ratio: 0.05
+        w_joint_pos: 1
+        w_joint_vel: 1
+        wandb_entity: null
+        wandb_log_every_steps: 20
+        wandb_mode: online
+        wandb_project: general_self_bfm
+        wandb_run_name: g1_kin_offline_s10_fs5_mlp3_mixed_migrated
+        wandb_tags: g1_kin_offline,fsq,bones,box,kick,lafan1,amass
+        weight_decay: 5e-05
+        window_stride: 5
+data_dirs:
+    value:
+        - /home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz
+        - /home/hohohht/Generalist/data/box_omnicontact_contact_augmented
+        - /home/hohohht/Generalist/data/kick
+        - /home/hohohht/Generalist/data/lafan1_g1
+        - /home/hohohht/Generalist/data/AMASS
+feature_dim:
+    value: 58
+frame_stride:
+    value: 5
+max_num_tokens:
+    value: 2
+num_files:
+    value: 167825
+num_train_windows:
+    value: 10707564
+num_val_windows:
+    value: 561244
+seq_len:
+    value: 10
+token_dim:
+    value: 32
+window_stride:
+    value: 5

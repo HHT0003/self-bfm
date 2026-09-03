@@ -1,0 +1,24 @@
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_setup.py:_flush():81] Current SDK version is 0.29.0
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_setup.py:_flush():81] Configure stats pid to 9767
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_setup.py:_flush():81] Loading settings from environment variables
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_init.py:setup_run_log_directory():739] Logging user logs to /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline_s10_fs5_mlp3_prefix1of3_cuda0_fresh_20260831/wandb/run-20260831_194815-aso7fcq4/logs/debug.log
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_init.py:setup_run_log_directory():740] Logging internal logs to /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline_s10_fs5_mlp3_prefix1of3_cuda0_fresh_20260831/wandb/run-20260831_194815-aso7fcq4/logs/debug-internal.log
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_init.py:init():783] calling init triggers
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_init.py:init():788] wandb.init called with sweep_config: {}
+config: {'data_dirs': ['/home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3_recovered/cuda0', '/home/hohohht/Generalist/data/box_omnicontact_contact_augmented', '/home/hohohht/Generalist/data/kick', '/home/hohohht/Generalist/data/lafan1_g1', '/home/hohohht/Generalist/data/AMASS'], 'num_files': 65408, 'num_train_windows': 4393198, 'num_val_windows': 234074, 'seq_len': 10, 'frame_stride': 5, 'window_stride': 5, 'temporal_mode': 'future', 'use_history_frames': False, 'feature_dim': 58, 'max_num_tokens': 2, 'token_dim': 32, 'args': {'command': 'train', 'data_dir': ['/home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3_recovered/cuda0', '/home/hohohht/Generalist/data/box_omnicontact_contact_augmented', '/home/hohohht/Generalist/data/kick', '/home/hohohht/Generalist/data/lafan1_g1', '/home/hohohht/Generalist/data/AMASS'], 'no_recursive': False, 'out_dir': '/home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline_s10_fs5_mlp3_prefix1of3_cuda0_fresh_20260831', 'resume_ckpt': None, 'seq_len': 10, 'frame_stride': 5, 'window_stride': 5, 'use_history_frames': False, 'no_cover_tail': False, 'enc_hidden_dims': '2048,1024,512', 'dec_hidden_dims': '2048,1024,512', 'max_num_tokens': 2, 'token_dim': 32, 'fsq_levels': '32', 'batch_size': 256, 'epochs': 250, 'lr': 0.0002, 'weight_decay': 5e-05, 'grad_clip': 1.0, 'val_ratio': 0.05, 'seed': 42, 'device': 'cuda', 'num_workers': 8, 'checkpoint_every': 10, 'w_joint_pos': 1.0, 'w_joint_vel': 1.0, 'max_files': None, 'max_windows': None, 'use_wandb': True, 'wandb_project': 'general_self_bfm', 'wandb_entity': None, 'wandb_run_name': 'g1_kin_offline_s10_fs5_mlp3_prefix1of3_cuda0_fresh_20260831', 'wandb_tags': 'g1_kin_offline,fsq,bones_prefix1of3_cuda0,fresh,box,kick,lafan1,amass', 'wandb_mode': 'online', 'wandb_log_every_steps': 20}, '_wandb': {}}
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_init.py:init():831] starting backend
+2026-08-31 19:48:15,605 INFO    MainThread:9767 [wandb_init.py:init():846] sending inform_init request
+2026-08-31 19:48:15,977 INFO    MainThread:9767 [wandb_init.py:init():851] backend started and connected
+2026-08-31 19:48:15,984 INFO    MainThread:9767 [wandb_init.py:init():921] updated telemetry
+2026-08-31 19:48:15,988 INFO    MainThread:9767 [wandb_init.py:init():944] communicating run to backend with 90.0 second timeout
+2026-08-31 19:48:16,768 INFO    MainThread:9767 [wandb_init.py:init():981] starting run threads in backend
+2026-08-31 19:48:16,824 INFO    MainThread:9767 [wandb_run.py:_console_start():2545] atexit reg
+2026-08-31 19:48:16,825 INFO    MainThread:9767 [wandb_run.py:_redirect():2395] redirect: wrap_raw
+2026-08-31 19:48:16,825 INFO    MainThread:9767 [wandb_run.py:_redirect():2464] Wrapping output streams.
+2026-08-31 19:48:16,825 INFO    MainThread:9767 [wandb_run.py:_redirect():2487] Redirects installed.
+2026-08-31 19:48:16,826 INFO    MainThread:9767 [wandb_init.py:init():1019] run started, returning control to user process
+2026-09-01 16:14:33,217 INFO    MainThread:9767 [wandb_run.py:_finish():2316] finishing run 617363291-harbin-institute-of-technology/general_self_bfm/aso7fcq4
+2026-09-01 16:14:33,218 INFO    MainThread:9767 [wandb_run.py:_atexit_cleanup():2512] got exitcode: 0
+2026-09-01 16:14:33,218 INFO    MainThread:9767 [wandb_run.py:_restore():2494] restore
+2026-09-01 16:14:33,218 INFO    MainThread:9767 [wandb_run.py:_restore():2500] restore done
+2026-09-01 16:14:46,266 INFO    MainThread:9767 [wandb_run.py:_footer_sync_info():3917] logging synced files

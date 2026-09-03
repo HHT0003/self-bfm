@@ -16,7 +16,8 @@ Pass one or more ``--data_dir`` roots; ``*.npz`` is collected recursively so
 nested layouts such as ``lafan1_g1/g1_mimic_npz`` work.
 
 Default sampling matches SONIC's G1 future-reference: 10 frames at 50 Hz with
-``frame_stride=5`` (0.1 s between frames).
+``frame_stride=5`` (0.1 s between frames). Pass ``--use_history_frames`` to
+replace ``[t, t+5, ..., t+45]`` with the causal ``[t, t-5, ..., t-45]`` order.
 """
 
 from __future__ import annotations
@@ -60,6 +61,18 @@ def parse_int_list(text: str, *, name: str) -> list[int]:
     return out
 
 
+def parse_bool(value: str | bool) -> bool:
+    """Parse common CLI boolean spellings while accepting bare flags."""
+    if isinstance(value, bool):
+        return value
+    normalized = str(value).strip().lower()
+    if normalized in {"1", "true", "yes", "y", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "n", "off"}:
+        return False
+    raise argparse.ArgumentTypeError(f"Expected a boolean value, got {value!r}.")
+
+
 def set_seed(seed: int) -> None:
     random.seed(seed)
     np.random.seed(seed)
@@ -69,6 +82,25 @@ def set_seed(seed: int) -> None:
 
 def window_span(seq_len: int, frame_stride: int) -> int:
     return 1 + (int(seq_len) - 1) * int(frame_stride)
+
+
+def window_indices(
+    start: int,
+    seq_len: int,
+    frame_stride: int,
+    use_history_frames: bool,
+) -> np.ndarray:
+    """Return current-first temporal indices for a physical window.
+
+    ``start`` always denotes the earliest physical frame covered by the
+    window. Future mode treats it as the current frame; history mode treats
+    the last covered frame as current and walks backward from there.
+    """
+    offsets = np.arange(seq_len, dtype=np.int64) * int(frame_stride)
+    if use_history_frames:
+        current = int(start) + int(offsets[-1])
+        return current - offsets
+    return int(start) + offsets
 
 
 def generate_window_starts(length: int, span: int, window_stride: int, cover_tail: bool) -> list[int]:
@@ -114,8 +146,9 @@ def slice_window(
     start: int,
     seq_len: int,
     frame_stride: int,
+    use_history_frames: bool = False,
 ) -> np.ndarray:
-    indices = start + np.arange(seq_len) * frame_stride
+    indices = window_indices(start, seq_len, frame_stride, use_history_frames)
     pos = joint_pos[indices]
     vel = joint_vel[indices]
     return np.concatenate([pos, vel], axis=1).astype(np.float32)
@@ -155,11 +188,13 @@ class LazyWindowDataset(Dataset):
         window_refs: list[tuple[int, int]],
         seq_len: int,
         frame_stride: int,
+        use_history_frames: bool = False,
     ):
         self.files = files
         self.window_refs = window_refs
         self.seq_len = int(seq_len)
         self.frame_stride = int(frame_stride)
+        self.use_history_frames = bool(use_history_frames)
         self._cache_key: str | None = None
         self._cache_pos: np.ndarray | None = None
         self._cache_vel: np.ndarray | None = None
@@ -186,6 +221,7 @@ class LazyWindowDataset(Dataset):
             start=start,
             seq_len=self.seq_len,
             frame_stride=self.frame_stride,
+            use_history_frames=self.use_history_frames,
         )
         return torch.from_numpy(window)
 
@@ -521,6 +557,17 @@ def init_wandb_run(args: argparse.Namespace, out_dir: Path, config_payload: dict
     )
 
 
+def upload_checkpoint(wandb_run: Any | None, path: Path, out_dir: Path) -> None:
+    """Upload a checkpoint as a W&B run file when W&B logging is enabled."""
+    if wandb_run is None or not path.is_file():
+        return
+    try:
+        wandb_run.save(str(path), base_path=str(out_dir), policy="now")
+    except Exception as exc:
+        # A failed upload should not interrupt a long-running training job.
+        print(f"[WARN] W&B checkpoint upload failed for {path.name}: {exc}", flush=True)
+
+
 def run_epoch(
     *,
     model: G1KinAutoEncoder,
@@ -641,10 +688,12 @@ def save_checkpoint(
     args: argparse.Namespace,
     epoch: int,
     metrics: dict[str, float],
+    optimizer: torch.optim.Optimizer | None = None,
+    global_step: int | None = None,
+    best_val: float | None = None,
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    torch.save(
-        {
+    payload = {
             "epoch": int(epoch),
             "metrics": metrics,
             "args": sanitize_args(args),
@@ -659,9 +708,16 @@ def save_checkpoint(
                 "enc_hidden_dims": parse_int_list(args.enc_hidden_dims, name="enc_hidden_dims"),
                 "dec_hidden_dims": parse_int_list(args.dec_hidden_dims, name="dec_hidden_dims"),
             },
-        },
-        path,
-    )
+    }
+    # Older checkpoints do not contain optimizer state; keep those usable as
+    # warm starts while storing full state for future interruption recovery.
+    if optimizer is not None:
+        payload["optimizer"] = optimizer.state_dict()
+    if global_step is not None:
+        payload["global_step"] = int(global_step)
+    if best_val is not None:
+        payload["best_val"] = float(best_val)
+    torch.save(payload, path)
 
 
 def load_checkpoint(path: Path, device: torch.device) -> tuple[G1KinAutoEncoder, FeatureNormalizer, dict[str, Any]]:
@@ -727,8 +783,20 @@ def train_command(args: argparse.Namespace) -> None:
         raise RuntimeError("No training windows found. Check seq_len/frame_stride and data lengths.")
 
     normalizer = FeatureNormalizer(mean=mean, std=std).to(device)
-    train_ds = LazyWindowDataset(files, train_refs, args.seq_len, args.frame_stride)
-    val_ds = LazyWindowDataset(files, val_refs, args.seq_len, args.frame_stride)
+    train_ds = LazyWindowDataset(
+        files,
+        train_refs,
+        args.seq_len,
+        args.frame_stride,
+        use_history_frames=args.use_history_frames,
+    )
+    val_ds = LazyWindowDataset(
+        files,
+        val_refs,
+        args.seq_len,
+        args.frame_stride,
+        use_history_frames=args.use_history_frames,
+    )
     train_loader = DataLoader(
         train_ds,
         batch_size=args.batch_size,
@@ -748,6 +816,39 @@ def train_command(args: argparse.Namespace) -> None:
 
     model = build_model_from_args(args).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+
+    start_epoch = 1
+    global_step = 0
+    best_val = float("inf")
+    if args.resume_ckpt:
+        resume_path = Path(args.resume_ckpt)
+        resume_model, resume_normalizer, resume_payload = load_checkpoint(resume_path, device=device)
+        model.load_state_dict(resume_model.state_dict())
+        normalizer = resume_normalizer
+        start_epoch = int(resume_payload.get("epoch", 0)) + 1
+        global_step = int(resume_payload.get("global_step", (start_epoch - 1) * len(train_loader)))
+        metrics = resume_payload.get("metrics", {})
+        best_val = float(resume_payload.get("best_val", metrics.get("val_total_loss", float("inf"))))
+        optimizer_state = resume_payload.get("optimizer") or resume_payload.get("optimizer_state")
+        if optimizer_state is not None:
+            optimizer.load_state_dict(optimizer_state)
+            print(f"[INFO] resumed optimizer state from {resume_path}", flush=True)
+        else:
+            print(
+                f"[WARN] {resume_path.name} has no optimizer state; resuming model weights "
+                "with a fresh AdamW optimizer.",
+                flush=True,
+            )
+        if start_epoch > args.epochs:
+            raise ValueError(
+                f"Checkpoint epoch {start_epoch - 1} is already >= requested --epochs {args.epochs}. "
+                "Set --epochs to a larger total epoch count."
+            )
+        print(
+            f"[INFO] resume checkpoint={resume_path} start_epoch={start_epoch} "
+            f"target_epochs={args.epochs} global_step={global_step}",
+            flush=True,
+        )
 
     probe = next(iter(train_loader)).to(device)
     probe_norm = normalizer.normalize(probe)
@@ -772,6 +873,8 @@ def train_command(args: argparse.Namespace) -> None:
         "seq_len": args.seq_len,
         "frame_stride": args.frame_stride,
         "window_stride": args.window_stride,
+        "temporal_mode": "history" if args.use_history_frames else "future",
+        "use_history_frames": args.use_history_frames,
         "feature_dim": FEATURE_DIM,
         "max_num_tokens": args.max_num_tokens,
         "token_dim": args.token_dim,
@@ -780,14 +883,13 @@ def train_command(args: argparse.Namespace) -> None:
     save_json(out_dir / "config.json", config_payload)
     print(
         f"[INFO] files={len(files)} train_windows={len(train_refs)} "
-        f"val_windows={len(val_refs)} steps_per_epoch≈{len(train_loader)} device={device}",
+        f"val_windows={len(val_refs)} steps_per_epoch≈{len(train_loader)} device={device} "
+        f"temporal_mode={'history' if args.use_history_frames else 'future'}",
         flush=True,
     )
     wandb_run = init_wandb_run(args, out_dir, config_payload)
 
-    best_val = float("inf")
-    global_step = 0
-    for epoch in range(1, args.epochs + 1):
+    for epoch in range(start_epoch, args.epochs + 1):
         print(
             f"[INFO] start epoch {epoch}/{args.epochs} "
             f"steps≈{len(train_loader)} global_step={global_step}",
@@ -859,7 +961,11 @@ def train_command(args: argparse.Namespace) -> None:
             args=args,
             epoch=epoch,
             metrics=row,
+            optimizer=optimizer,
+            global_step=global_step,
+            best_val=best_val,
         )
+        upload_checkpoint(wandb_run, out_dir / "last.pt", out_dir)
         if val_loss < best_val:
             best_val = val_loss
             save_checkpoint(
@@ -869,16 +975,25 @@ def train_command(args: argparse.Namespace) -> None:
                 args=args,
                 epoch=epoch,
                 metrics=row,
+                optimizer=optimizer,
+                global_step=global_step,
+                best_val=best_val,
             )
+            upload_checkpoint(wandb_run, out_dir / "best.pt", out_dir)
         if args.checkpoint_every > 0 and epoch % args.checkpoint_every == 0:
+            epoch_checkpoint = out_dir / f"epoch_{epoch:04d}.pt"
             save_checkpoint(
-                out_dir / f"epoch_{epoch:04d}.pt",
+                epoch_checkpoint,
                 model=model,
                 normalizer=normalizer,
                 args=args,
                 epoch=epoch,
                 metrics=row,
+                optimizer=optimizer,
+                global_step=global_step,
+                best_val=best_val,
             )
+            upload_checkpoint(wandb_run, epoch_checkpoint, out_dir)
     print(f"[INFO] training done. checkpoints in {out_dir}")
     if wandb_run is not None:
         wandb_run.finish()
@@ -894,6 +1009,7 @@ def reconstruct_windows(
     cover_tail: bool,
     batch_size: int,
     device: torch.device,
+    use_history_frames: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
     span = window_span(seq_len, frame_stride)
     starts = generate_window_starts(features.shape[0], span, window_stride, cover_tail)
@@ -902,7 +1018,7 @@ def reconstruct_windows(
 
     windows = []
     for start in starts:
-        indices = start + np.arange(seq_len) * frame_stride
+        indices = window_indices(start, seq_len, frame_stride, use_history_frames)
         windows.append(features[indices])
     windows_t = torch.from_numpy(np.stack(windows, axis=0)).to(device=device, dtype=torch.float32)
 
@@ -918,11 +1034,24 @@ def reconstruct_windows(
     acc = np.zeros_like(features, dtype=np.float64)
     cnt = np.zeros((features.shape[0], 1), dtype=np.float64)
     for i, start in enumerate(starts):
-        indices = start + np.arange(seq_len) * frame_stride
+        indices = window_indices(start, seq_len, frame_stride, use_history_frames)
         acc[indices] += recon_windows[i]
         cnt[indices] += 1.0
-    cnt = np.maximum(cnt, 1.0)
-    return (acc / cnt).astype(np.float32), np.asarray(starts, dtype=np.int32)
+    known = cnt[:, 0] > 0.0
+    averaged = acc / np.maximum(cnt, 1.0)
+    # Windows are sampled at ``frame_stride``.  Fill the unsampled display
+    # frames so a reconstructed NPZ remains a valid full-rate motion rather
+    # than containing zero-valued gaps between predicted frames.
+    if not np.all(known):
+        known_idx = np.flatnonzero(known)
+        full_idx = np.arange(features.shape[0])
+        for feature_idx in range(features.shape[1]):
+            averaged[:, feature_idx] = np.interp(
+                full_idx,
+                known_idx,
+                averaged[known_idx, feature_idx],
+            )
+    return averaged.astype(np.float32), np.asarray(starts, dtype=np.int32)
 
 
 def reconstruct_command(args: argparse.Namespace) -> None:
@@ -932,6 +1061,10 @@ def reconstruct_command(args: argparse.Namespace) -> None:
     seq_len = int(args.seq_len) if args.seq_len > 0 else int(arch["seq_len"])
     frame_stride = int(args.frame_stride) if args.frame_stride > 0 else int(payload["args"].get("frame_stride", 5))
     window_stride = int(args.window_stride) if args.window_stride > 0 else int(payload["args"].get("window_stride", 5))
+    checkpoint_uses_history = bool(payload.get("args", {}).get("use_history_frames", False))
+    use_history_frames = (
+        checkpoint_uses_history if args.use_history_frames is None else bool(args.use_history_frames)
+    )
 
     input_path = Path(args.input_npz)
     joint_pos, joint_vel = load_pos_vel(input_path)
@@ -946,6 +1079,7 @@ def reconstruct_command(args: argparse.Namespace) -> None:
         cover_tail=not args.no_cover_tail,
         batch_size=args.batch_size,
         device=device,
+        use_history_frames=use_history_frames,
     )
     recon_pos = recon[:, :JOINT_DIM]
     recon_vel = recon[:, JOINT_DIM:]
@@ -973,6 +1107,8 @@ def reconstruct_command(args: argparse.Namespace) -> None:
         "seq_len": seq_len,
         "frame_stride": frame_stride,
         "window_stride": window_stride,
+        "temporal_mode": "history" if use_history_frames else "future",
+        "use_history_frames": use_history_frames,
     }
     if args.output_metrics_json:
         save_json(Path(args.output_metrics_json), metrics)
@@ -980,9 +1116,17 @@ def reconstruct_command(args: argparse.Namespace) -> None:
 
 
 def add_shared_sampling_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--seq_len", type=int, default=10, help="Number of future reference frames.")
-    parser.add_argument("--frame_stride", type=int, default=5, help="Frames between sampled future refs at 50 Hz.")
+    parser.add_argument("--seq_len", type=int, default=10, help="Number of temporal reference frames.")
+    parser.add_argument("--frame_stride", type=int, default=5, help="Frames between sampled references at 50 Hz.")
     parser.add_argument("--window_stride", type=int, default=5, help="Start-index stride when slicing training windows.")
+    parser.add_argument(
+        "--use_history_frames",
+        type=parse_bool,
+        nargs="?",
+        const=True,
+        default=False,
+        help="Use current plus past frames [t, t-stride, ...] instead of SONIC future refs (default: false).",
+    )
     parser.add_argument("--no_cover_tail", action="store_true", help="Do not force a final tail-covering window.")
 
 
@@ -1004,6 +1148,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Only load top-level *.npz in each --data_dir (skip nested folders).",
     )
     p_train.add_argument("--out_dir", type=str, required=True)
+    p_train.add_argument(
+        "--resume_ckpt",
+        type=str,
+        default=None,
+        help="Resume training from a checkpoint. --epochs is the total target epoch count.",
+    )
     add_shared_sampling_args(p_train)
     p_train.add_argument(
         "--enc_hidden_dims",
@@ -1051,6 +1201,22 @@ def build_parser() -> argparse.ArgumentParser:
     p_recon.add_argument("--seq_len", type=int, default=0, help="0 = use checkpoint seq_len.")
     p_recon.add_argument("--frame_stride", type=int, default=0, help="0 = use checkpoint frame_stride.")
     p_recon.add_argument("--window_stride", type=int, default=0, help="0 = use checkpoint window_stride.")
+    recon_temporal_mode = p_recon.add_mutually_exclusive_group()
+    recon_temporal_mode.add_argument(
+        "--use_history_frames",
+        dest="use_history_frames",
+        type=parse_bool,
+        nargs="?",
+        const=True,
+        help="Force current-plus-history window order.",
+    )
+    recon_temporal_mode.add_argument(
+        "--use_future_frames",
+        dest="use_history_frames",
+        action="store_false",
+        help="Force current-plus-future window order.",
+    )
+    p_recon.set_defaults(use_history_frames=None)
     p_recon.add_argument("--no_cover_tail", action="store_true")
     p_recon.add_argument("--batch_size", type=int, default=256)
     p_recon.add_argument("--device", type=str, default="cuda")

@@ -1,0 +1,176 @@
+_wandb:
+    value:
+        cli_version: 0.28.0
+        e:
+            v6t5bkqqg6n6gskvpkpxhm36dtnf5zca:
+                args:
+                    - train
+                    - --data_dir
+                    - /data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3/all
+                    - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/box_omnicontact_contact_augmented_0722_forcevalid_20260727_053934
+                    - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/kick
+                    - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/lafan1_g1
+                    - /data/init_precise_control/motion_data/AMASS_Retargeted_for_G1/g1_mimic_npz_50hz
+                    - --out_dir
+                    - /data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline
+                    - --seq_len
+                    - "10"
+                    - --frame_stride
+                    - "5"
+                    - --window_stride
+                    - "5"
+                    - --enc_hidden_dims
+                    - 2048,1024,512
+                    - --dec_hidden_dims
+                    - 2048,1024,512
+                    - --max_num_tokens
+                    - "2"
+                    - --token_dim
+                    - "32"
+                    - --fsq_levels
+                    - "32"
+                    - --batch_size
+                    - "256"
+                    - --epochs
+                    - "250"
+                    - --lr
+                    - "2e-4"
+                    - --num_workers
+                    - "8"
+                    - --device
+                    - cuda
+                    - --val_ratio
+                    - "0.05"
+                    - --seed
+                    - "42"
+                    - --use_wandb
+                    - --wandb_project
+                    - general_self_bfm
+                    - --wandb_run_name
+                    - g1_kin_offline_s10_fs5_mlp3_mixed
+                    - --wandb_tags
+                    - g1_kin_offline,fsq,bones_prefix1of3,box,kick,lafan1,amass
+                    - --wandb_mode
+                    - online
+                    - --wandb_log_every_steps
+                    - "20"
+                codePath: gear_sonic/scripts/train_g1_kin_offline.py
+                codePathLocal: gear_sonic/scripts/train_g1_kin_offline.py
+                cpu_count: 16
+                cpu_count_logical: 32
+                cudaVersion: "13.0"
+                disk:
+                    /:
+                        total: "3936290357248"
+                        used: "1921598808064"
+                email: 617363291@qq.com
+                executable: /isaac-sim/kit/python/bin/python3
+                git:
+                    commit: c374bae5b9039cd0ee71377e654d11ce1bc69e1d
+                    remote: https://github.com/NVlabs/GR00T-WholeBodyControl.git
+                gpu: NVIDIA GeForce RTX 5090
+                gpu_count: 2
+                gpu_nvidia:
+                    - architecture: Blackwell
+                      cudaCores: 21760
+                      memoryTotal: "34190917632"
+                      name: NVIDIA GeForce RTX 5090
+                      uuid: GPU-90cd29d4-d8ac-1acc-00f2-1b51a1e75876
+                    - architecture: Blackwell
+                      cudaCores: 21760
+                      memoryTotal: "34190917632"
+                      name: NVIDIA GeForce RTX 5090
+                      uuid: GPU-24b0bcd3-9849-ed6f-836a-870eebe6561a
+                host: zeus-t5d
+                memory:
+                    total: "132569088000"
+                os: Linux-6.8.0-136-generic-x86_64-with-glibc2.35
+                program: /data/init_precise_control/projects/GR00T-WholeBodyControl/gear_sonic/scripts/train_g1_kin_offline.py
+                python: CPython 3.10.15
+                root: /data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline
+                startedAt: "2026-08-27T07:17:33.128327Z"
+                writerId: v6t5bkqqg6n6gskvpkpxhm36dtnf5zca
+        m: []
+        python_version: 3.10.15
+        t:
+            "1":
+                - 1
+                - 105
+            "2":
+                - 1
+                - 105
+            "3":
+                - 2
+                - 13
+                - 15
+                - 16
+            "4": 3.10.15
+            "5": 0.28.0
+            "12": 0.28.0
+            "13": linux-x86_64
+args:
+    value:
+        batch_size: 256
+        checkpoint_every: 10
+        command: train
+        data_dir:
+            - /data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3/all
+            - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/box_omnicontact_contact_augmented_0722_forcevalid_20260727_053934
+            - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/kick
+            - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/lafan1_g1
+            - /data/init_precise_control/motion_data/AMASS_Retargeted_for_G1/g1_mimic_npz_50hz
+        dec_hidden_dims: 2048,1024,512
+        device: cuda
+        enc_hidden_dims: 2048,1024,512
+        epochs: 250
+        frame_stride: 5
+        fsq_levels: "32"
+        grad_clip: 1
+        lr: 0.0002
+        max_files: null
+        max_num_tokens: 2
+        max_windows: null
+        no_cover_tail: false
+        no_recursive: false
+        num_workers: 8
+        out_dir: /data/init_precise_control/projects/GR00T-WholeBodyControl/logs/g1_kin_offline
+        seed: 42
+        seq_len: 10
+        token_dim: 32
+        use_wandb: true
+        val_ratio: 0.05
+        w_joint_pos: 1
+        w_joint_vel: 1
+        wandb_entity: null
+        wandb_log_every_steps: 20
+        wandb_mode: online
+        wandb_project: general_self_bfm
+        wandb_run_name: g1_kin_offline_s10_fs5_mlp3_mixed
+        wandb_tags: g1_kin_offline,fsq,bones_prefix1of3,box,kick,lafan1,amass
+        weight_decay: 5e-05
+        window_stride: 5
+data_dirs:
+    value:
+        - /data/init_precise_control/motion_data/BONES-SEED/g1_mimic_npz_50hz_prefix1of3/all
+        - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/box_omnicontact_contact_augmented_0722_forcevalid_20260727_053934
+        - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/kick
+        - /data/init_precise_control/motion_data/perceptive_generalist_data_upload/lafan1_g1
+        - /data/init_precise_control/motion_data/AMASS_Retargeted_for_G1/g1_mimic_npz_50hz
+feature_dim:
+    value: 58
+frame_stride:
+    value: 5
+max_num_tokens:
+    value: 2
+num_files:
+    value: 62997
+num_train_windows:
+    value: 5135211
+num_val_windows:
+    value: 276118
+seq_len:
+    value: 10
+token_dim:
+    value: 32
+window_stride:
+    value: 5

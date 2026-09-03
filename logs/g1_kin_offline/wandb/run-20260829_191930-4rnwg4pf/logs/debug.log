@@ -1,0 +1,42 @@
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_setup.py:_flush():81] Current SDK version is 0.29.0
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_setup.py:_flush():81] Configure stats pid to 224058
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_setup.py:_flush():81] Loading settings from environment variables
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_init.py:setup_run_log_directory():739] Logging user logs to /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline/wandb/run-20260829_191930-4rnwg4pf/logs/debug.log
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_init.py:setup_run_log_directory():740] Logging internal logs to /home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline/wandb/run-20260829_191930-4rnwg4pf/logs/debug-internal.log
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_init.py:init():783] calling init triggers
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_init.py:init():788] wandb.init called with sweep_config: {}
+config: {'data_dirs': ['/home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz', '/home/hohohht/Generalist/data/box_omnicontact_contact_augmented', '/home/hohohht/Generalist/data/kick', '/home/hohohht/Generalist/data/lafan1_g1', '/home/hohohht/Generalist/data/AMASS'], 'num_files': 167825, 'num_train_windows': 10707564, 'num_val_windows': 561244, 'seq_len': 10, 'frame_stride': 5, 'window_stride': 5, 'feature_dim': 58, 'max_num_tokens': 2, 'token_dim': 32, 'args': {'command': 'train', 'data_dir': ['/home/hohohht/Generalist/data/BONES-SEED/g1_mimic_npz_50hz', '/home/hohohht/Generalist/data/box_omnicontact_contact_augmented', '/home/hohohht/Generalist/data/kick', '/home/hohohht/Generalist/data/lafan1_g1', '/home/hohohht/Generalist/data/AMASS'], 'no_recursive': False, 'out_dir': '/home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline', 'seq_len': 10, 'frame_stride': 5, 'window_stride': 5, 'no_cover_tail': False, 'enc_hidden_dims': '2048,1024,512', 'dec_hidden_dims': '2048,1024,512', 'max_num_tokens': 2, 'token_dim': 32, 'fsq_levels': '32', 'batch_size': 256, 'epochs': 250, 'lr': 0.0002, 'weight_decay': 5e-05, 'grad_clip': 1.0, 'val_ratio': 0.05, 'seed': 42, 'device': 'cuda', 'num_workers': 8, 'checkpoint_every': 10, 'w_joint_pos': 1.0, 'w_joint_vel': 1.0, 'max_files': None, 'max_windows': None, 'use_wandb': True, 'wandb_project': 'general_self_bfm', 'wandb_entity': None, 'wandb_run_name': 'g1_kin_offline_s10_fs5_mlp3_mixed_migrated', 'wandb_tags': 'g1_kin_offline,fsq,bones,box,kick,lafan1,amass', 'wandb_mode': 'online', 'wandb_log_every_steps': 20}, '_wandb': {}}
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_init.py:init():831] starting backend
+2026-08-29 19:19:30,612 INFO    MainThread:224058 [wandb_init.py:init():846] sending inform_init request
+2026-08-29 19:19:31,136 INFO    MainThread:224058 [wandb_init.py:init():851] backend started and connected
+2026-08-29 19:19:31,141 INFO    MainThread:224058 [wandb_init.py:init():921] updated telemetry
+2026-08-29 19:19:31,144 INFO    MainThread:224058 [wandb_init.py:init():944] communicating run to backend with 90.0 second timeout
+2026-08-29 19:19:32,093 INFO    MainThread:224058 [wandb_init.py:init():981] starting run threads in backend
+2026-08-29 19:19:32,138 INFO    MainThread:224058 [wandb_run.py:_console_start():2545] atexit reg
+2026-08-29 19:19:32,138 INFO    MainThread:224058 [wandb_run.py:_redirect():2395] redirect: wrap_raw
+2026-08-29 19:19:32,138 INFO    MainThread:224058 [wandb_run.py:_redirect():2464] Wrapping output streams.
+2026-08-29 19:19:32,138 INFO    MainThread:224058 [wandb_run.py:_redirect():2487] Redirects installed.
+2026-08-29 19:19:32,140 INFO    MainThread:224058 [wandb_init.py:init():1019] run started, returning control to user process
+2026-08-31 15:47:42,485 INFO    wandb-AsyncioManager-main:224058 [service_client.py:_forward_responses():122] [no run ID] Reached EOF.
+2026-08-31 15:47:42,485 INFO    wandb-AsyncioManager-main:224058 [mailbox.py:close():154] [no run ID] Closing mailbox, abandoning 2 handles.
+2026-08-31 15:47:42,485 ERROR   wandb-AsyncioManager-main:224058 [asyncio_manager.py:fn_wrap_exceptions():197] Uncaught exception in run_soon callback.
+Traceback (most recent call last):
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/lib/asyncio_manager.py", line 195, in fn_wrap_exceptions
+    await fn()
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/lib/run_messages.py", line 90, in loop
+    await asyncio_compat.race(
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/lib/asyncio_compat.py", line 279, in race
+    async with open_task_group(race=True) as tg:
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/contextlib.py", line 206, in __aexit__
+    await anext(self.gen)
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/lib/asyncio_compat.py", line 241, in open_task_group
+    await task_group._wait_all(race=race, timeout=exit_timeout)
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/lib/asyncio_compat.py", line 181, in _wait_all
+    raise exc
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/lib/run_messages.py", line 113, in _print_all
+    result = await handle.wait_async(timeout=None)
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/mailbox/mailbox_handle.py", line 127, in wait_async
+    response = await self._handle.wait_async(timeout=timeout)
+  File "/home/hohohht/miniconda3/envs/isaaclab210/lib/python3.10/site-packages/wandb/sdk/mailbox/response_handle.py", line 123, in wait_async
+    raise HandleAbandonedError()
+wandb.sdk.mailbox.mailbox_handle.HandleAbandonedError

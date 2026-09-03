@@ -1,0 +1,11 @@
+{
+  "input_npz": "/home/hohohht/Generalist/data/lafan1_g1/lafan1_g1_dance1_subject3.npz",
+  "output_npz": "/home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline/reconstructed/lafan1_g1_dance1_subject3_reconstructed.npz",
+  "ckpt": "/home/hohohht/Generalist/projects/SONIC_vqvae/logs/g1_kin_offline/best.pt",
+  "num_windows": 1307,
+  "pos_rmse": 0.11959999054670334,
+  "vel_rmse": 0.9450691342353821,
+  "seq_len": 10,
+  "frame_stride": 5,
+  "window_stride": 5
+}
